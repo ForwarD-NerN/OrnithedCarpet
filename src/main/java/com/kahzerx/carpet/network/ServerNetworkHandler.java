@@ -4,10 +4,11 @@ import com.kahzerx.carpet.CarpetServer;
 import com.kahzerx.carpet.CarpetSettings;
 import com.kahzerx.carpet.api.settings.CarpetRule;
 import com.kahzerx.carpet.api.settings.RuleHelper;
+import com.kahzerx.carpet.fakes.MinecraftServerTickRate;
 import com.kahzerx.carpet.fakes.PlayerManagerAllowCommands;
+import com.kahzerx.carpet.helpers.ServerTickRateManager;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -28,10 +29,13 @@ import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+//#if MC<=11102
+//$$ import org.jetbrains.annotations.Nullable;
+//$$ import net.minecraft.util.math.BlockPos;
+//$$ import net.minecraft.util.math.Vec3d;
+//$$ import net.minecraft.entity.Entity;
+//#endif
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -256,22 +260,40 @@ public class ServerNetworkHandler {
     }
 
     public static void updateRuleWithConnectedClients(CarpetRule<?> rule) {
-//        if (CarpetSettings.superSecretSetting) {  // TODO
-//            return;
-//        }
+        if (CarpetSettings.superSecretSetting) {  // TODO
+            return;
+        }
 		for (ServerPlayerEntity player : remoteCarpetPlayers.keySet()) {
             player.networkHandler.sendPacket(DataBuilder.create(player.server).withRule(rule).build());
         }
     }
 
-    public static void broadcastCustomCommand(String command, NbtElement data) {
-//        if (CarpetSettings.superSecretSetting) {  // TODO
-//            return;
-//        }
-        for (ServerPlayerEntity player : validCarpetPlayers) {
-            player.networkHandler.sendPacket(DataBuilder.create(player.server).withCustomNbt(command, data).build());
-        }
-    }
+	public static void updateTickSpeedToConnectedPlayers() {
+		if (CarpetSettings.superSecretSetting) {
+			return;
+		}
+		for (ServerPlayerEntity player : validCarpetPlayers) {
+			player.networkHandler.sendPacket(DataBuilder.create(player.server).withTickRate().build());
+		}
+	}
+
+	public static void updateFrozenStateToConnectedPlayers() {
+		if (CarpetSettings.superSecretSetting) {
+			return;
+		}
+		for (ServerPlayerEntity player : validCarpetPlayers) {
+			player.networkHandler.sendPacket(DataBuilder.create(player.server).withFrozenState().build());
+		}
+	}
+
+	public static void updateTickPlayerActiveTimeoutToConnectedPlayers() {
+		if (CarpetSettings.superSecretSetting) {
+			return;
+		}
+		for (ServerPlayerEntity player : validCarpetPlayers) {
+			player.networkHandler.sendPacket(DataBuilder.create(player.server).withTickPlayerActiveTimeout().build());
+		}
+	}
 
     public static void onPlayerLoggedOut(ServerPlayerEntity player) {
         validCarpetPlayers.remove(player);
@@ -286,9 +308,9 @@ public class ServerNetworkHandler {
     }
 
     public static boolean isValidCarpetPlayer(ServerPlayerEntity player) {
-//        if (CarpetSettings.superSecretSetting) {  // TODO
-//            return false;
-//        }
+        if (CarpetSettings.superSecretSetting) {
+            return false;
+        }
         return validCarpetPlayers.contains(player);
     }
 
@@ -334,6 +356,27 @@ public class ServerNetworkHandler {
             rules.put(key, ruleNBT);
             return this;
         }
+
+		private DataBuilder withTickRate() {
+			ServerTickRateManager trm = ((MinecraftServerTickRate) server).getTickRateManager();
+			tag.putFloat("TickRate", trm.tickRate());
+			return this;
+		}
+
+		private DataBuilder withFrozenState() {
+			ServerTickRateManager trm = ((MinecraftServerTickRate) server).getTickRateManager();
+			NbtCompound tickingState = new NbtCompound();
+			tickingState.putBoolean("is_paused", trm.gameIsPaused());
+			tickingState.putBoolean("deepFreeze", trm.deeplyFrozen());
+			tag.put("TickingState", tickingState);
+			return this;
+		}
+
+		private DataBuilder withTickPlayerActiveTimeout() {
+			ServerTickRateManager trm = ((MinecraftServerTickRate) server).getTickRateManager();
+			tag.putInt("TickPlayerActiveTimeout", trm.getPlayerActiveTimeout());
+			return this;
+		}
 
         public DataBuilder withCustomNbt(String key, NbtElement value) {
             tag.put(key, value);

@@ -1,6 +1,8 @@
 package com.kahzerx.carpet;
 
 import com.kahzerx.carpet.api.settings.SettingsManager;
+import com.kahzerx.carpet.commands.TickCommand;
+import com.kahzerx.carpet.fakes.MinecraftServerTickRate;
 import com.kahzerx.carpet.network.ServerNetworkHandler;
 //#if MC>=11300
 import com.mojang.brigadier.CommandDispatcher;
@@ -32,8 +34,13 @@ public class CarpetServer {
 		extensions.forEach(e -> e.onServerLoaded(server));
 	}
 
-	public static void onServerLoadedWorlds(MinecraftServer minecraftServer) {
-		extensions.forEach(e -> e.onServerLoadedWorlds(minecraftServer));
+	public static void onServerLoadedWorlds(MinecraftServer server) {
+		extensions.forEach(e -> e.onServerLoadedWorlds(server));
+	}
+
+	public static void onTick(MinecraftServer server) {
+		((MinecraftServerTickRate)server).getTickRateManager().tick();
+		extensions.forEach(e -> e.onTick(server));
 	}
 
 	//#if MC>=11300
@@ -45,9 +52,11 @@ public class CarpetServer {
 			return;
 		}
 		//#if MC>=11300
-		settingsManager.registerCommand(dispatcher);
+		forEachManager(sm -> sm.registerCommand(dispatcher));
+		TickCommand.register(dispatcher);
 		//#else
 		//$$ registry.register(new SettingsManager.CarpetCommand(settingsManager));
+		//$$ registry.register(new TickCommand());
 		//#endif
 	}
 

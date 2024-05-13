@@ -20,12 +20,12 @@ public class PlayerEntityMixin {
 	public PlayerAbilities abilities;
 
 	//#if MC>10710
-	@Redirect(method = {"tick", "tickAI"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerEntity;isSpectator()Z"))
+	@Redirect(method = {"tick", "tickAi"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerEntity;isSpectator()Z"))
 	private boolean noClip(PlayerEntity instance) {
 		return instance.isSpectator() || (CarpetSettings.creativeNoClip && instance.abilities.invulnerable && instance.abilities.flying);
 	}
 	//#else
-	//$$ @Redirect(method = "tickAI", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerEntity;getHealth()F", ordinal = 3))
+	//$$ @Redirect(method = "tickAi", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerEntity;getHealth()F", ordinal = 3))
 	//$$ private float noClip(PlayerEntity instance) {
 	//$$	if (instance.getHealth() > 0.0F && CarpetSettings.creativeNoClip && instance.abilities.invulnerable && instance.abilities.flying) {
 	//$$		return -0.1F;

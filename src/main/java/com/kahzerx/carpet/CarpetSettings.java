@@ -159,4 +159,10 @@ public class CarpetSettings {
 
 	@Rule(desc = "TNT doesn't update when placed against a power source", categories = {CREATIVE, TNT})
 	public static boolean tntDoNotUpdate = false;
+
+	@Rule(desc = "Enables /tick command to control game clocks", categories = COMMAND, options = {"ops", "2", "4"})
+	public static String commandTick = "ops";
+
+	@Rule(desc = "Gbhs sgnf sadsgras fhskdpri!!!", categories = EXPERIMENTAL)
+	public static boolean superSecretSetting = false;
 }

@@ -4,6 +4,12 @@
   "package": "com.kahzerx.carpet.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "commands.tick.LivingEntityMixin",
+    "commands.tick.MinecraftServerMixin",
+    "commands.tick.ServerChunkCacheMixin",
+    "commands.tick.ServerPlayNetworkHandlerMixin",
+    "commands.tick.ServerWorldMixin",
+    "commands.tick.WorldMixin",
     "protocol.CustomPayloadC2SPacketMixin",
     "protocol.ServerPlayNetworkHandlerMixin",
     "rule.creativeNoClip.EntityMixin",
@@ -22,6 +28,7 @@
     "server.ServerPlayNetworkHandlerMixin"
   ],
   "client": [
+    "commands.tick.ClientWorldMixin",
     "protocol.ClientPlayNetworkHandlerMixin",
     "protocol.LocalClientPlayerEntityMixin",
     "protocol.MinecraftMixin",

@@ -6,12 +6,12 @@ import com.kahzerx.carpet.CarpetSettings;
 import com.kahzerx.carpet.api.settings.CarpetRule;
 import com.kahzerx.carpet.api.settings.InvalidRuleValueException;
 import com.kahzerx.carpet.api.settings.SettingsManager;
+import com.kahzerx.carpet.fakes.WorldTickRate;
+import com.kahzerx.carpet.helpers.TickRateManager;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.*;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 
@@ -63,6 +63,19 @@ public class ClientNetworkHandler {
                 }
             }
         });
+		dataHandlers.put("TickRate", (p, t) -> {
+			TickRateManager tickRateManager = ((WorldTickRate) p.world).tickRateManager();
+			tickRateManager.setTickRate(((NbtFloat) t).getFloat());
+		});
+		dataHandlers.put("TickingState", (p, t) -> {
+			NbtCompound tickingState = (NbtCompound) t;
+			TickRateManager tickRateManager = ((WorldTickRate) p.world).tickRateManager();
+			tickRateManager.setFrozenState(tickingState.getBoolean("is_paused"), tickingState.getBoolean("deepFreeze"));
+		});
+		dataHandlers.put("TickPlayerActiveTimeout", (p, t) -> {
+			TickRateManager tickRateManager = ((WorldTickRate) p.world).tickRateManager();
+			tickRateManager.setPlayerActiveTimeout(((NbtFloat) t).getInt());
+		});
         dataHandlers.put("clientCommand", (p, t) -> CarpetClient.onClientCommand(t));
     }
 

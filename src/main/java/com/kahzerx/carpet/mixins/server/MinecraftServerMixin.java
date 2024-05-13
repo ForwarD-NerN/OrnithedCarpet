@@ -9,8 +9,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.function.BooleanSupplier;
+
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
+	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V", shift = At.Shift.BEFORE, ordinal = 0))
+	private void onTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+		CarpetServer.onTick((MinecraftServer) (Object) this);
+	}
+
 	@Inject(method = "stop", at = @At(value = "HEAD"))
 	private void onServerClosed(CallbackInfo ci) {
 		CarpetServer.onServerClosed((MinecraftServer) (Object) this);

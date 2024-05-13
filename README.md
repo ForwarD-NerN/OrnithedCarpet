@@ -120,3 +120,12 @@ TNT doesn't update when placed against a power source
 - Suggestions: `true`, `false`
 - Categories: `CREATIVE`, `TNT`
 
+### commandTick
+
+Enables /tick command to control game clocks
+
+- Type: `String`
+- Default: `ops`
+- Suggestions: `ops`, `2`, `4`
+- Categories: `COMMAND`
+

@@ -29,7 +29,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 //$$	}
 //#endif
 
-	@Redirect(method = "tickAI", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerEntity;dropShoulderEntities()V"))
+	@Redirect(method = "tickAi", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerEntity;dropShoulderEntities()V"))
 	private void onTickMovement(PlayerEntity instance) {
 		if (!CarpetSettings.persistentParrots) {
 			this.dropShoulderEntities();
