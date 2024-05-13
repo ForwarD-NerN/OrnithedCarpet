@@ -13,8 +13,18 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
-	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V", shift = At.Shift.BEFORE, ordinal = 0))
+	@Inject(method = "tick", at = @At(value = "INVOKE", target =
+		//#if MC>11202
+		"Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V"
+		//#else
+		//$$ "Lnet/minecraft/server/MinecraftServer;tickWorlds()V"
+		//#endif
+		, shift = At.Shift.BEFORE, ordinal = 0))
+	//#if MC>11202
 	private void onTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+	//#else
+	//$$ private void onTick(CallbackInfo ci) {
+	//#endif
 		CarpetServer.onTick((MinecraftServer) (Object) this);
 	}
 

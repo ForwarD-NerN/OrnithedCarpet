@@ -7,7 +7,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.WorldSettings;
-//#if MC>10809
+//#if MC>11202
 import net.minecraft.world.dimension.DimensionType;
 //#endif
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,7 +25,7 @@ public class ClientWorldMixin implements WorldTickRate {
 
 	@Inject(method = "<init>", at = @At(value = "RETURN"))
 	private void onInit(ClientPlayNetworkHandler clientPlayNetworkHandler, WorldSettings worldSettings,
-						//#if MC>10809
+						//#if MC>11202
 						DimensionType dimensionType,
 						//#else
 						//$$ int dimension,
