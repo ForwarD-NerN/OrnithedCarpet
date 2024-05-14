@@ -29,6 +29,7 @@
   ],
   "client": [
     "commands.tick.ClientWorldMixin",
+    "commands.tick.MinecraftMixin",
     "protocol.ClientPlayNetworkHandlerMixin",
     "protocol.LocalClientPlayerEntityMixin",
     "protocol.MinecraftMixin",

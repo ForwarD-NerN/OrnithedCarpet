@@ -11,7 +11,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+//#if MC>11202
 import java.util.function.BooleanSupplier;
+//#endif
 
 @Mixin(ServerChunkCache.class)
 public class ServerChunkCacheMixin {
@@ -20,7 +22,12 @@ public class ServerChunkCacheMixin {
 	private ServerWorld world;
 
 	@Inject(method = "tick", at = @At(value = "HEAD"), cancellable = true)
-	private void onTick(BooleanSupplier hasTimeLeft, CallbackInfoReturnable<Boolean> cir) {
+	private void onTick(
+		//#if MC>11202
+		BooleanSupplier hasTimeLeft,
+		//#endif
+		CallbackInfoReturnable<Boolean> cir
+	) {
 		ServerTickRateManager strm = ((MinecraftServerTickRate) world.getServer()).getTickRateManager();
 		if (!strm.runsNormally() && strm.deeplyFrozen()) {
 			cir.setReturnValue(false);
