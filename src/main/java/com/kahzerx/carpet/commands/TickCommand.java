@@ -18,6 +18,7 @@ import com.mojang.brigadier.CommandDispatcher;
 //$$ import net.minecraft.server.command.exception.CommandException;
 //$$ import net.minecraft.server.command.source.CommandSource;
 //$$ import com.google.common.collect.Iterables;
+//$$ import java.util.Arrays;
 //$$ import java.util.ArrayList;
 //#endif
 //#if MC<=10710
@@ -41,7 +42,17 @@ public class TickCommand
 		dispatcher.register(CommandManager.literal("tick").
 			requires((p) -> CommandHelper.canUseCommand(p, CarpetSettings.commandTick)).
 			then(CommandManager.literal("freeze").
-				executes((c) -> toggleFreeze(c.getSource(), false))));
+				executes((c) -> toggleFreeze(c.getSource(), false)).
+				then(CommandManager.literal("status").
+					executes((c) -> freezeStatus(c.getSource()))).
+				then(CommandManager.literal("deep").
+					executes((c) -> toggleFreeze(c.getSource(), true))).
+				then(CommandManager.literal("on").
+					executes((c) -> setFreeze(c.getSource(), false, true)).
+					then(CommandManager.literal("deep").
+						executes((c) -> setFreeze(c.getSource(), true, true)))).
+				then(CommandManager.literal("off").
+					executes((c) -> setFreeze(c.getSource(), false, false)))));
 	}
 	//#endif
 	//#if MC<=11202
@@ -52,7 +63,7 @@ public class TickCommand
 	//$$
 	//$$	@Override
 	//$$	public String getUsage(CommandSource commandSource) {
-	//$$		return this.getName() + " <option> <value>";
+	//$$		return this.getName() + " <option>";
 	//$$	}
 	//$$	@Override
 		//#if MC>10809
@@ -64,7 +75,29 @@ public class TickCommand
 	//$$ 		    if ("freeze".equalsIgnoreCase(strings[0])) {
 	//$$ 			    toggleFreeze(commandSource, false);
 	//$$ 	    	}
-	//$$    	}
+	//$$    	 }
+	//$$ 		if (strings.length == 2) {
+	//$$ 			if ("freeze".equalsIgnoreCase(strings[0])) {
+	//$$      		    if ("status".equalsIgnoreCase(strings[1])) {
+	//$$ 					freezeStatus(commandSource);
+	//$$                } else if("deep".equalsIgnoreCase(strings[1])) {
+	//$$ 					toggleFreeze(commandSource, true);
+	//$$                } else if("on".equalsIgnoreCase(strings[1])) {
+	//$$ 					setFreeze(commandSource, false, true);
+	//$$                } else if("off".equalsIgnoreCase(strings[1])) {
+	//$$ 					setFreeze(commandSource, false, false);
+	//$$ 				}
+	//$$ 	  		}
+	//$$		}
+	//$$ 		if (strings.length == 3) {
+	//$$ 			if ("freeze".equalsIgnoreCase(strings[0])) {
+	//$$ 				if ("on".equalsIgnoreCase(strings[1])) {
+	//$$ 					if ("deep".equalsIgnoreCase(strings[2])) {
+	//$$ 						setFreeze(commandSource, true, true);
+	//$$ 					}
+	//$$ 				}
+	//$$ 			}
+	//$$ 		}
 	//$$     }
 	//$$
 	//$$	@Override
@@ -87,6 +120,18 @@ public class TickCommand
 	//$$     if (strings.length == 1) {
 	//$$         return Collections.singletonList("freeze");
 	//$$     }
+	//$$     if (strings.length == 2) {
+	//$$ 		if ("freeze".equalsIgnoreCase(strings[0])) {
+	//$$ 			return Arrays.asList("status", "deep", "on", "off");
+	//$$ 		}
+	//$$     }
+	//$$     if (strings.length == 3) {
+	//$$ 		if ("freeze".equalsIgnoreCase(strings[0])) {
+	//$$ 			if ("on".equalsIgnoreCase(strings[1])) {
+	//$$ 				return Collections.singletonList("deep");
+	//$$ 			}
+	//$$ 		}
+	//$$     }
 	//$$     return Collections.emptyList();
 	//$$ }
 	//#endif
@@ -108,6 +153,26 @@ public class TickCommand
 			Messenger.m(source, "gi Game is "+(isDeep?"deeply ":"")+"frozen");
 		} else {
 			Messenger.m(source, "gi Game runs normally");
+		}
+		return 1;
+	}
+
+	private static int freezeStatus(
+		//#if MC>=11300
+		CommandSourceStack source
+		//#else
+		//$$ CommandSource source
+		//#endif
+	) {
+		//#if MC>10809
+		ServerTickRateManager trm = ((MinecraftServerTickRate)source.getServer()).getTickRateManager();
+		//#else
+		//$$ ServerTickRateManager trm = ((MinecraftServerTickRate)MinecraftServer.getInstance()).getTickRateManager();
+		//#endif
+		if (trm.gameIsPaused()) {
+			Messenger.m(source, "gi Freeze Status: Game is "+(trm.deeplyFrozen()?"deeply ":"")+"frozen");
+		} else {
+			Messenger.m(source, "gi Freeze Status: Game runs normally");
 		}
 		return 1;
 	}
