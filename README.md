@@ -120,6 +120,15 @@ TNT doesn't update when placed against a power source
 - Suggestions: `true`, `false`
 - Categories: `CREATIVE`, `TNT`
 
+### quasiConnectivity
+
+Pistons, droppers, and dispensers check for power to the block(s) above them
+
+- Type: `Integer`
+- Default: `1`
+- Suggestions: `0`, `1`, `2`, `3`
+- Categories: `CREATIVE`
+
 ### commandTick
 
 Enables /tick command to control game clocks

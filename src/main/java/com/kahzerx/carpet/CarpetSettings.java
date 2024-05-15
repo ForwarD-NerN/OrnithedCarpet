@@ -204,6 +204,7 @@ public class CarpetSettings {
 			"Defines the range at which pistons, droppers, and dispensers check for 'quasi power'."
 		},
 		categories = CREATIVE,
+		options = {"0", "1", "2", "3"},
 		validators = QuasiConnectivityValidator.class
 	)
 	public static int quasiConnectivity = 1;
