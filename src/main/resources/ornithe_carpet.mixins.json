@@ -18,6 +18,8 @@
     "rule.persistentParrots.PlayerEntityMixin",
     "rule.portalDelay.PlayerEntityMixin",
     "rule.pushLimit.PistonMoveStructureResolverMixin",
+    "rule.quasiConnectivity.DispenserBlockMixin",
+    "rule.quasiConnectivity.PistonBaseBlockMixin",
     "rule.railPowerLimit.PoweredRailBlockMixin",
     "rule.tnt.explosionNoBlockDamage.ExplosionMixin",
     "rule.tnt.tntDoNotUpdate.TntBlockMixin",

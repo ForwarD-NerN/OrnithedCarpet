@@ -9,6 +9,10 @@ import net.minecraft.server.command.source.CommandSourceStack;
 //#else
 //$$ import net.minecraft.server.command.source.CommandSource;
 //#endif
+//#if MC<=10809
+//$$ import net.minecraft.server.MinecraftServer;
+//#endif
+import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -111,9 +115,9 @@ public class CarpetSettings {
 	private static class PushLimitLimits extends Validator<Integer> {
 		@Override
 		//#if MC>=11300
-		public Integer validate(CommandSourceStack source, CarpetRule<Integer> currentRule, Integer newValue, String string) {
+		public Integer validate(CommandSourceStack source, CarpetRule<Integer> currentRule, Integer newValue, String userInput) {
 		//#else
-		//$$ public Integer validate(CommandSource source, CarpetRule<Integer> currentRule, Integer newValue, String string) {
+		//$$ public Integer validate(CommandSource source, CarpetRule<Integer> currentRule, Integer newValue, String userInput) {
 		//#endif
 			return (newValue > 0 && newValue <= 1024) ? newValue : null;
 		}
@@ -165,4 +169,42 @@ public class CarpetSettings {
 
 	@Rule(desc = "Gbhs sgnf sadsgras fhskdpri!!!", categories = EXPERIMENTAL)
 	public static boolean superSecretSetting = false;
+
+	private static class QuasiConnectivityValidator extends Validator<Integer> {
+		@Override
+		//#if MC>=11300
+		public Integer validate(CommandSourceStack source, CarpetRule<Integer> changingRule, Integer newValue, String userInput) {
+		//#else
+		//$$ public Integer validate(CommandSource source, CarpetRule<Integer> changingRule, Integer newValue, String userInput) {
+		//#endif
+			int minRange = 0;
+			int maxRange = 1;
+
+			if (source == null) {
+				maxRange = Integer.MAX_VALUE;
+			} else {
+				//#if MC>11202
+				for (World world : source.getServer().getWorlds()) {
+				//#elseif MC>10809
+				//$$ for (World world : source.getServer().worlds) {
+				//#else
+				//$$ for (World world : MinecraftServer.getInstance().worlds) {
+				//#endif
+					maxRange = Math.max(maxRange, world.getHeight() - 1);
+				}
+			}
+
+			return (newValue >= minRange && newValue <= maxRange) ? newValue : null;
+		}
+	}
+
+	@Rule(
+		desc = "Pistons, droppers, and dispensers check for power to the block(s) above them.",
+		extra = {
+			"Defines the range at which pistons, droppers, and dispensers check for 'quasi power'."
+		},
+		categories = CREATIVE,
+		validators = QuasiConnectivityValidator.class
+	)
+	public static int quasiConnectivity = 1;
 }
