@@ -129,6 +129,15 @@ Pistons, droppers, and dispensers check for power to the block(s) above them
 - Suggestions: `0`, `1`, `2`, `3`
 - Categories: `CREATIVE`
 
+### hopperCounter
+
+Hoppers pointing to wool will count items passing through them, enables /counter command
+
+- Type: `Boolean`
+- Default: `false`
+- Suggestions: `true`, `false`
+- Categories: `COMMAND`, `CREATIVE`, `FEATURE`
+
 ### commandTick
 
 Enables /tick command to control game clocks

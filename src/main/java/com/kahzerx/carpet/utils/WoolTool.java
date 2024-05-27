@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 //#if MC<=11202
 //$$ import net.minecraft.block.ColoredBlock;
+//$$ import net.minecraft.block.material.Material;
 //#endif
 
 public class WoolTool {
@@ -69,7 +70,6 @@ public class WoolTool {
 	//#else
 	//$$ public static DyeColor getWoolColorAtPosition(World world, BlockPos pos) {
 	//#endif
-		//TODO validate wool
 		//#if MC>10710
 		BlockState state = world.getBlockState(pos);
 		//#else
@@ -77,13 +77,18 @@ public class WoolTool {
 		//#endif
 		//#if MC>11202
 		return BLOCK_TO_COLOR.get(state.getBlock());
+		//#elseif MC>10809
+		//$$ if (state.getMaterial() != Material.WOOL) {
+		//$$    return null;
+		//$$ }
+		//$$ return state.get(ColoredBlock.COLOR);
 		//#elseif MC>10710
-		//$$ if (state.getBlock() != Blocks.WOOL) {
+		//$$ if (state.getBlock().getMaterial() != Material.WOOL) {
 		//$$    return null;
 		//$$ }
 		//$$ return state.get(ColoredBlock.COLOR);
 		//#else
-		//$$ if (block != Blocks.WOOL) {
+		//$$ if (block.getMaterial() != Material.WOOL) {
 		//$$ 	return null;
 		//$$ }
 		//$$ return BLOCK_TO_COLOR.get(MapColor.forDyeColor(world.getBlockMetadata(pos.x, pos.y, pos.z)));

@@ -8,6 +8,8 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 //#if MC>11202
 import net.minecraft.world.dimension.DimensionType;
+//#else
+//$$ import net.minecraft.text.LiteralText;
 //#endif
 //#if MC>11102
 import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
@@ -157,7 +159,11 @@ public class HopperCounter {
 				//#endif
 			)).map(e -> {
 			Item item = e.getKey();
-			TranslatableText itemName = new TranslatableText(item.getTranslationKey());  // TODO incorrect for 1.13-?
+			//#if MC>11202
+			Text itemName = new TranslatableText(item.getTranslationKey());
+			//#else
+			//$$ Text itemName = new LiteralText(item.getName(new ItemStack(item)));
+			//#endif
 			//#if MC>11102
 			long count = e.getLongValue();
 			//#else

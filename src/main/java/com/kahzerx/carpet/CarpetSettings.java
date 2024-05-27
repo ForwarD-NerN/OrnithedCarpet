@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
 import static com.kahzerx.carpet.api.settings.RuleCategory.*;
 
 public class CarpetSettings {
-	public static final String carpetVersion = "0.1.0";
+	public static final String carpetVersion = "0.2.0";
 	public static final Logger LOG = LogManager.getLogger("carpet");
 
 	private static class LanguageValidator extends Validator<String> {
