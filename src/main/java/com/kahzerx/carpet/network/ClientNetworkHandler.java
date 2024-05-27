@@ -74,7 +74,7 @@ public class ClientNetworkHandler {
 		});
 		dataHandlers.put("TickPlayerActiveTimeout", (p, t) -> {
 			TickRateManager tickRateManager = ((WorldTickRate) p.world).tickRateManager();
-			tickRateManager.setPlayerActiveTimeout(((NbtFloat) t).getInt());
+			tickRateManager.setPlayerActiveTimeout(((NbtInt) t).getInt());
 		});
         dataHandlers.put("clientCommand", (p, t) -> CarpetClient.onClientCommand(t));
     }
