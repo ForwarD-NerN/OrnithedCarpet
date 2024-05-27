@@ -208,4 +208,17 @@ public class CarpetSettings {
 		validators = QuasiConnectivityValidator.class
 	)
 	public static int quasiConnectivity = 1;
+
+	@Rule(
+		desc = "hoppers pointing to wool will count items passing through them",
+		extra = {
+			"Enables /counter command, and actions while placing red and green carpets on wool blocks",
+			"Use /counter <color?> reset to reset the counter, and /counter <color?> to query",
+			"In survival, place green carpet on same color wool to query, red to reset the counters",
+			"Counters are global and shared between players, 16 channels available",
+			"Items counted are destroyed, count up to one stack per tick per hopper"
+		},
+		categories = {COMMAND, CREATIVE, FEATURE}
+	)
+	public static boolean hopperCounters = false;
 }

@@ -106,7 +106,7 @@ public class TickCommand
 	//#else
 	//$$   public boolean canUse(CommandSource commandSource) {
 	//#endif
-	//$$   return CommandHelper.canUseCommand(commandSource, CarpetSettings.carpetCommandPermissionLevel);
+	//$$   return CommandHelper.canUseCommand(commandSource, CarpetSettings.commandTick);
 	//$$ }
 	//$$
 	//$$	@Override

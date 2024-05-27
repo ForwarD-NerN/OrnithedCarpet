@@ -4,6 +4,7 @@
   "package": "com.kahzerx.carpet.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "commands.counter.HopperBlockEntityMixin",
     "commands.tick.LivingEntityMixin",
     "commands.tick.MinecraftServerMixin",
     "commands.tick.ServerChunkCacheMixin",

@@ -1,6 +1,7 @@
 package com.kahzerx.carpet;
 
 import com.kahzerx.carpet.api.settings.SettingsManager;
+import com.kahzerx.carpet.commands.CounterCommand;
 import com.kahzerx.carpet.commands.TickCommand;
 import com.kahzerx.carpet.fakes.MinecraftServerTickRate;
 import com.kahzerx.carpet.network.ServerNetworkHandler;
@@ -54,9 +55,11 @@ public class CarpetServer {
 		//#if MC>=11300
 		forEachManager(sm -> sm.registerCommand(dispatcher));
 		TickCommand.register(dispatcher);
+		CounterCommand.register(dispatcher);
 		//#else
 		//$$ registry.register(new SettingsManager.CarpetCommand(settingsManager));
 		//$$ registry.register(new TickCommand());
+		//$$ registry.register(new CounterCommand());
 		//#endif
 	}
 
