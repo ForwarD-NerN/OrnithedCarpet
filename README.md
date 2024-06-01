@@ -147,3 +147,21 @@ Enables /tick command to control game clocks
 - Suggestions: `ops`, `2`, `4`
 - Categories: `COMMAND`
 
+### commandFill
+
+Enables /fill command for minecraft 1.7.10-
+
+- Type: `String`
+- Default: `ops`
+- Suggestions: `ops`, `2`, `4`
+- Categories: `COMMAND`
+- Versions: `1.7.10-`
+
+### fillLimit
+
+Customizable fill volume limit
+
+- Type: `Integer`
+- Default: `32768`
+- Suggestions: `32768`, `250000`, `1000000`
+- Categories: `CREATIVE`

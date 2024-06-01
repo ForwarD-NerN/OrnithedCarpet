@@ -3,6 +3,9 @@ package com.kahzerx.carpet;
 import com.kahzerx.carpet.api.settings.SettingsManager;
 import com.kahzerx.carpet.commands.CounterCommand;
 import com.kahzerx.carpet.commands.TickCommand;
+//#if MC<10809
+//$$ import com.kahzerx.carpet.commands.FillCommand;
+//#endif
 import com.kahzerx.carpet.fakes.MinecraftServerTickRate;
 import com.kahzerx.carpet.network.ServerNetworkHandler;
 //#if MC>=11300
@@ -60,6 +63,9 @@ public class CarpetServer {
 		//$$ registry.register(new SettingsManager.CarpetCommand(settingsManager));
 		//$$ registry.register(new TickCommand());
 		//$$ registry.register(new CounterCommand());
+		//#endif
+		//#if MC<10809
+		//$$ registry.register(new FillCommand());
 		//#endif
 	}
 

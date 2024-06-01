@@ -218,7 +218,35 @@ public class CarpetSettings {
 			"Counters are global and shared between players, 16 channels available",
 			"Items counted are destroyed, count up to one stack per tick per hopper"
 		},
-		categories = {COMMAND, CREATIVE, FEATURE}
+		categories = { COMMAND, CREATIVE, FEATURE }
 	)
 	public static boolean hopperCounters = false;
+
+	//#if MC<10809
+	//$$	@Rule(desc = "Enables /fill command", categories = COMMAND, options = {"ops", "2", "4"})
+	//$$	public static String commandFill = "ops";
+	//#endif
+
+	private static class FillLimitLimits extends Validator<Integer> {
+		@Override
+		//#if MC>=11300
+		public Integer validate(CommandSourceStack source, CarpetRule<Integer> changingRule, Integer newValue, String userInput) {
+		//#else
+		//$$ public Integer validate(CommandSource source, CarpetRule<Integer> changingRule, Integer newValue, String userInput) {
+		//#endif
+			return (newValue>0 && newValue < 20000000) ? newValue : null;
+		}
+		@Override
+		public String description() {
+			return "You must choose a value from 1 to 20M";
+		}
+	}
+	@Rule(
+		desc = "Customizable fill volume limit",
+		options = {"32768", "250000", "1000000"},
+		categories = CREATIVE,
+		strict = false,
+		validators = FillLimitLimits.class
+	)
+	public static int fillLimit = 32768;
 }
