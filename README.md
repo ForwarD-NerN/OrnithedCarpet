@@ -165,3 +165,12 @@ Customizable fill volume limit
 - Default: `32768`
 - Suggestions: `32768`, `250000`, `1000000`
 - Categories: `CREATIVE`
+
+### emeraldOreUpdateSuppressor
+
+Makes all emerald ore blocks act as an update suppressor
+
+- Type: `Boolean`
+- Default: `false`
+- Suggestions: `true`, `false`
+- Categories: `CREATIVE`

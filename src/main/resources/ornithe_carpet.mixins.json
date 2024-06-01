@@ -16,6 +16,7 @@
     "rule.creativeNoClip.EntityMixin",
     "rule.creativeNoClip.PlayerEntityMixin",
     "rule.creativeNoClip.WorldMixin",
+    "rule.emeraldOreUpdateSuppressor.OreBlockMixin",
     "rule.fillLimit.FillCommandMixin",
     "rule.persistentParrots.PlayerEntityMixin",
     "rule.portalDelay.PlayerEntityMixin",

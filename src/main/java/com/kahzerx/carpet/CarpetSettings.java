@@ -249,4 +249,11 @@ public class CarpetSettings {
 		validators = FillLimitLimits.class
 	)
 	public static int fillLimit = 32768;
+
+	@Rule(
+		desc = "Makes all emerald ore blocks act as an update suppressor",
+		categories = CREATIVE,
+		strict = false
+	)
+	public static boolean emeraldOreUpdateSuppressor = false;
 }
