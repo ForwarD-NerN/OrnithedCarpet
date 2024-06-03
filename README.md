@@ -174,3 +174,12 @@ Makes all emerald ore blocks act as an update suppressor
 - Default: `false`
 - Suggestions: `true`, `false`
 - Categories: `CREATIVE`
+
+### smoothClientAnimations
+
+smooth client animations with low tps settings
+
+- Type: `Boolean`
+- Default: `false`
+- Suggestions: `true`, `false`
+- Categories: `CREATIVE`, `SURVIVAL`, `CLIENT`

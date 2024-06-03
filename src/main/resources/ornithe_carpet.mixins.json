@@ -39,7 +39,8 @@
     "protocol.LocalClientPlayerEntityMixin",
     "protocol.MinecraftMixin",
     "rule.creativeNoClip.LocalClientPlayerEntityMixin",
-    "rule.creativeNoClip.WorldRendererMixin"
+    "rule.creativeNoClip.WorldRendererMixin",
+    "rule.smoothClientAnimations.TickTimerMixin"
   ],
   "server": [
   ],

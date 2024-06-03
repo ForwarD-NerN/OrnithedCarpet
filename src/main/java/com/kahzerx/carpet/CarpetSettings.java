@@ -256,4 +256,11 @@ public class CarpetSettings {
 		strict = false
 	)
 	public static boolean emeraldOreUpdateSuppressor = false;
+
+	@Rule(
+		desc = "smooth client animations with low tps settings",
+		extra = "works only in SP, and will slow down players",
+		categories = { CREATIVE, SURVIVAL, CLIENT }
+	)
+	public static boolean smoothClientAnimations = false;
 }
