@@ -31,6 +31,7 @@ public class OreBlockMixin extends Block {
 	//$$	}
 	//#endif
 
+	@SuppressWarnings("deprecation")
 	@Override
 	//#if MC>11002
 	public void neighborChanged(BlockState state, World world, BlockPos pos, Block neighborBlock, BlockPos neighborPos) {
@@ -42,7 +43,7 @@ public class OreBlockMixin extends Block {
 	//$$ public void neighborChanged(World world, int x, int y, int z, Block neighborBlock) {
 	//#endif
 		if (CarpetSettings.emeraldOreUpdateSuppressor && this == Blocks.EMERALD_ORE) {
-			throw new StackOverflowError();
+			throw new StackOverflowError();  // TODO crashes on 1.7.10 (idk 1.8...)
 		}
 	}
 }
