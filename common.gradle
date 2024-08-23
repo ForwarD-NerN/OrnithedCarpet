@@ -48,6 +48,7 @@ loom {
 		ideConfigGenerated = true
 		runDir '../../run'
 		vmArgs '-Dmixin.debug.export=true'
+		programArgs '--userProperties={}'
 	}
 }
 
