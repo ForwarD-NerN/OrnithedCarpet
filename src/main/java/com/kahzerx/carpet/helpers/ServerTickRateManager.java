@@ -11,7 +11,7 @@ import net.minecraft.server.command.handler.CommandManager;
 //#else
 //$$ import net.minecraft.server.command.handler.CommandHandler;
 //#endif
-//#if MC>=11200
+//#if MC>=11300
 import net.minecraft.server.command.source.CommandSourceStack;
 //#else
 //$$ import net.minecraft.server.command.source.CommandSource;
@@ -29,7 +29,7 @@ public class ServerTickRateManager extends TickRateManager {
 	private long scheduledCurrentWarpTicks = 0;
 	private ServerPlayerEntity warpResponsiblePlayer = null;
 	private String tickWarpCallback = null;
-	//#if MC>=11200
+	//#if MC>=11300
 	private CommandSourceStack warpResponsibleSource = null;
 	//#else
 	//$$ private CommandSource warpResponsibleSource = null;
@@ -65,7 +65,6 @@ public class ServerTickRateManager extends TickRateManager {
 		ServerNetworkHandler.updateFrozenStateToConnectedPlayers();
 	}
 
-
 	public void resetPlayerActivity() {
 		if (playerActivityTimeout < PLAYER_GRACE) {
 			playerActivityTimeout = PLAYER_GRACE;
@@ -79,7 +78,7 @@ public class ServerTickRateManager extends TickRateManager {
 	}
 
 	public Text requestGameToWarpSpeed(ServerPlayerEntity player, int advance, String callback,
-									   //#if MC>=11200
+									   //#if MC>=11300
 									   CommandSourceStack source
 									   //#else
 									   //$$ CommandSource source

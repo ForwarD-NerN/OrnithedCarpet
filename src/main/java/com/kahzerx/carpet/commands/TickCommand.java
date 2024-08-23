@@ -25,12 +25,24 @@ import com.mojang.brigadier.CommandDispatcher;
 //$$ import net.minecraft.server.command.Command;
 //$$ import org.jetbrains.annotations.NotNull;
 //#endif
+import net.minecraft.entity.Entity;
+import net.minecraft.text.Text;
 import net.minecraft.server.command.handler.CommandManager;
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 //#if MC>=11300
 import net.minecraft.server.command.source.CommandSourceStack;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 //#else
 //$$ import net.minecraft.server.command.source.CommandSource;
 //#endif
+import java.util.Collections;
 
 public class TickCommand
 //#if MC<=11202
@@ -41,6 +53,18 @@ public class TickCommand
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(CommandManager.literal("tick").
 			requires((p) -> CommandHelper.canUseCommand(p, CarpetSettings.commandTick)).
+			then(CommandManager.literal("rate").
+				executes((c) -> queryTps(c.getSource())).
+				then(CommandManager.argument("rate", FloatArgumentType.floatArg(0.1F, 500.0F)).
+					suggests((c, b) -> suggest(Collections.singletonList("20.0"), b)).
+					executes((c) -> setTps(c.getSource(), FloatArgumentType.getFloat(c, "rate"))))).
+			then(CommandManager.literal("warp").
+				executes((c) -> setWarp(c.getSource(), 0, null)).
+				then(CommandManager.argument("ticks", IntegerArgumentType.integer(0)).
+					suggests((c, b) -> suggest(Arrays.asList("3600", "72000"), b)).
+					executes((c) -> setWarp(c.getSource(), IntegerArgumentType.getInteger(c, "ticks"), null)).
+					then(CommandManager.argument("tail command", StringArgumentType.greedyString()).
+						executes((c) -> setWarp(c.getSource(), IntegerArgumentType.getInteger(c, "ticks"), StringArgumentType.getString(c, "tail command")))))).
 			then(CommandManager.literal("freeze").
 				executes((c) -> toggleFreeze(c.getSource(), false)).
 				then(CommandManager.literal("status").
@@ -74,7 +98,11 @@ public class TickCommand
 	//$$ 	     if (strings.length == 1) {
 	//$$ 		    if ("freeze".equalsIgnoreCase(strings[0])) {
 	//$$ 			    toggleFreeze(commandSource, false);
-	//$$ 	    	}
+	//$$ 	    	} else if ("rate".equalsIgnoreCase(strings[0])) {
+	//$$ 				queryTps(commandSource);
+	//$$ 	    	} else if ("warp".equalsIgnoreCase(strings[0])) {
+	//$$ 				setWarp(commandSource, 0, null);
+	//$$			}
 	//$$    	 }
 	//$$ 		if (strings.length == 2) {
 	//$$ 			if ("freeze".equalsIgnoreCase(strings[0])) {
@@ -87,7 +115,35 @@ public class TickCommand
 	//$$                } else if("off".equalsIgnoreCase(strings[1])) {
 	//$$ 					setFreeze(commandSource, false, false);
 	//$$ 				}
-	//$$ 	  		}
+	//$$ 	  		} else if ("rate".equalsIgnoreCase(strings[0])) {
+	//$$ 				String sRate = strings[1];
+	//$$ 				float rate;
+	//$$ 				try {
+	//$$ 					rate = Float.parseFloat(sRate);
+	//$$ 				} catch (Exception e) {
+	//$$ 					Messenger.m(commandSource, "A numeric value is required");
+	//$$ 					return;
+	//$$				}
+	//$$ 				if (rate < 0.1F || rate > 500.0F) {
+	//$$ 					Messenger.m(commandSource, "Rate must be between 0.1 and 500");
+	//$$ 					return;
+	//$$				}
+	//$$ 				setTps(commandSource, rate);
+	//$$			} else if ("warp".equalsIgnoreCase(strings[0])) {
+	//$$                String sWarp = strings[1];
+	//$$                int warp;
+	//$$ 				try {
+	//$$ 					warp = Integer.parseInt(sWarp);
+	//$$ 				} catch (Exception e) {
+	//$$ 					Messenger.m(commandSource, "An integer value is required");
+	//$$ 					return;
+	//$$				}
+	//$$ 				if (warp < 0) {
+	//$$ 					Messenger.m(commandSource, "Rate must be positive");
+	//$$ 					return;
+	//$$				}
+	//$$                setWarp(commandSource, warp, null);
+	//$$            }
 	//$$		}
 	//$$ 		if (strings.length == 3) {
 	//$$ 			if ("freeze".equalsIgnoreCase(strings[0])) {
@@ -96,7 +152,23 @@ public class TickCommand
 	//$$ 						setFreeze(commandSource, true, true);
 	//$$ 					}
 	//$$ 				}
-	//$$ 			}
+	//$$			} else if ("warp".equalsIgnoreCase(strings[0])) {
+	//$$                String sWarp = strings[1];
+	//$$                int warp;
+	//$$ 				try {
+	//$$ 					warp = Integer.parseInt(sWarp);
+	//$$ 				} catch (Exception e) {
+	//$$ 					Messenger.m(commandSource, "An integer value is required");
+	//$$ 					return;
+	//$$				}
+	//$$ 				if (warp < 0) {
+	//$$ 					Messenger.m(commandSource, "Rate must be positive");
+	//$$ 					return;
+	//$$				}
+	//$$                String[] tailCommand = Arrays.copyOfRange(strings, 2, strings.length);
+	//$$                String command = String.join(" ", tailCommand);
+	//$$                setWarp(commandSource, warp, command);
+	//$$            }
 	//$$ 		}
 	//$$     }
 	//$$
@@ -118,12 +190,16 @@ public class TickCommand
 	//$$ public List<String> getSuggestions(CommandSource commandSource, String[] strings) {
 	//#endif
 	//$$     if (strings.length == 1) {
-	//$$         return Collections.singletonList("freeze");
+	//$$         return Arrays.asList("freeze", "rate", "warp");
 	//$$     }
 	//$$     if (strings.length == 2) {
 	//$$ 		if ("freeze".equalsIgnoreCase(strings[0])) {
 	//$$ 			return Arrays.asList("status", "deep", "on", "off");
-	//$$ 		}
+	//$$ 		} else if ("rate".equalsIgnoreCase(strings[0])) {
+	//$$ 			return Collections.singletonList("20.0");
+	//$$ 		} else if ("warp".equalsIgnoreCase(strings[0])) {
+	//$$ 			return Arrays.asList("3600", "72000");
+	//$$		}
 	//$$     }
 	//$$     if (strings.length == 3) {
 	//$$ 		if ("freeze".equalsIgnoreCase(strings[0])) {
@@ -191,6 +267,83 @@ public class TickCommand
 		//#endif
 		return setFreeze(source, isDeep, !trm.gameIsPaused());
 	}
+
+	private static int queryTps(
+		//#if MC>=11300
+		CommandSourceStack source
+		//#else
+		//$$ CommandSource source
+		//#endif
+	) {
+		//#if MC>10809
+		ServerTickRateManager trm = ((MinecraftServerTickRate)source.getServer()).getTickRateManager();
+		//#else
+		//$$ ServerTickRateManager trm = ((MinecraftServerTickRate)MinecraftServer.getInstance()).getTickRateManager();
+		//#endif
+		Messenger.m(source, "w Current tps is: ",String.format("wb %.1f", trm.tickRate()));
+		return (int) trm.tickRate();
+	}
+
+	private static int setTps(
+		//#if MC>=11300
+		CommandSourceStack source,
+		//#else
+		//$$ CommandSource source,
+		//#endif
+		float tps) {
+		//#if MC>10809
+		ServerTickRateManager trm = ((MinecraftServerTickRate)source.getServer()).getTickRateManager();
+		//#else
+		//$$ ServerTickRateManager trm = ((MinecraftServerTickRate)MinecraftServer.getInstance()).getTickRateManager();
+		//#endif
+		trm.setTickRate(tps, true);
+		queryTps(source);
+		return (int)tps;
+	}
+
+	private static int setWarp(
+		//#if MC>=11300
+		CommandSourceStack source,
+		//#else
+		//$$ CommandSource source,
+		//#endif
+		int advance, String tailCommand) {
+		//#if MC>=11300
+		Entity entity = source.getEntity();
+		//#elseif MC>10710
+		//$$ Entity entity = source.asEntity();
+		//#endif
+		if (!(
+			//#if MC>10710
+			entity
+			//#else
+			//$$ source
+			//#endif
+				instanceof ServerPlayerEntity)) {
+			return 1;
+		}
+		//#if MC>10710
+		ServerPlayerEntity player = (ServerPlayerEntity) entity;
+		//#else
+		//$$ ServerPlayerEntity player = (ServerPlayerEntity) source;
+		//#endif
+
+		//#if MC>10809
+		ServerTickRateManager trm = ((MinecraftServerTickRate)source.getServer()).getTickRateManager();
+		//#else
+		//$$ ServerTickRateManager trm = ((MinecraftServerTickRate)MinecraftServer.getInstance()).getTickRateManager();
+		//#endif
+		Text msg = trm.requestGameToWarpSpeed(player, advance, tailCommand, source);
+		Messenger.m(source, msg);
+		return 1;
+	}
+
+	//#if MC>11202
+	private static CompletableFuture<Suggestions> suggest(Iterable<String> iterable, SuggestionsBuilder suggestionsBuilder) {
+		iterable.forEach(suggestionsBuilder::suggest);
+		return suggestionsBuilder.buildFuture();
+	}
+	//#endif
 
 	//#if MC<=10710
 	//$$ @Override
