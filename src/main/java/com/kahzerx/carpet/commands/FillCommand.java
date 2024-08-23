@@ -167,6 +167,7 @@ public class FillCommand {}  // TODO Missing translations
 //$$ 		return CommandHelper.canUseCommand(source, CarpetSettings.commandFill);
 //$$ 	}
 //$$
+//$$ 	@SuppressWarnings("unchecked")
 //$$ 	public List<String> getSuggestions(CommandSource source, String[] args) {
 //$$ 		if (args.length > 0 && args.length <= 3) {
 //$$ 			return suggestCoordinate(args, 0);
