@@ -178,22 +178,7 @@ public class CarpetSettings {
 		//$$ public Integer validate(CommandSource source, CarpetRule<Integer> changingRule, Integer newValue, String userInput) {
 		//#endif
 			int minRange = 0;
-			int maxRange = 1;
-
-			if (source == null) {
-				maxRange = Integer.MAX_VALUE;
-			} else {
-				//#if MC>11202
-				for (World world : source.getServer().getWorlds()) {
-				//#elseif MC>10809
-				//$$ for (World world : source.getServer().worlds) {
-				//#else
-				//$$ for (World world : MinecraftServer.getInstance().worlds) {
-				//#endif
-					maxRange = Math.max(maxRange, world.getHeight() - 1);
-				}
-			}
-
+			int maxRange = 256-1;
 			return (newValue >= minRange && newValue <= maxRange) ? newValue : null;
 		}
 	}
