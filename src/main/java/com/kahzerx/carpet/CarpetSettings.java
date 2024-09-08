@@ -248,4 +248,14 @@ public class CarpetSettings {
 		categories = { CREATIVE, SURVIVAL, CLIENT }
 	)
 	public static boolean smoothClientAnimations = false;
+
+	//#if MC>=10900
+	@Rule(
+		desc = "Creative players load chunks, or they don't! Just like spectators!",
+		extra = {"Toggling behaves exactly as if the player is in spectator mode and toggling the gamerule spectatorsGenerateChunks."
+		},
+		categories = {CREATIVE, FEATURE}
+	)
+	public static boolean creativePlayersLoadChunks = true;
+	//#endif
 }
