@@ -6,9 +6,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Utils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.function.BooleanSupplier;
 
@@ -26,7 +26,14 @@ public abstract class MinecraftServerMixin implements MinecraftServerTickRate {
 	protected abstract boolean hasTimeLeft();
 	//#endif
 
+	//#if MC<=11202
+	//$$ @Shadow
+	//$$ public abstract void tick();
+	//#endif
+
+	@Unique
 	private ServerTickRateManager serverTickRateManager;
+
 	@Override
 	public ServerTickRateManager getTickRateManager() {
 		return serverTickRateManager;
@@ -37,25 +44,34 @@ public abstract class MinecraftServerMixin implements MinecraftServerTickRate {
 
 	@Inject(method = "<init>", at = @At(value = "RETURN"))
 	private void onInit(CallbackInfo ci) {
-		this.serverTickRateManager = new ServerTickRateManager((MinecraftServer) (Object) this);
+		if (this.getTickRateManager() == null) {
+			this.serverTickRateManager = new ServerTickRateManager((MinecraftServer) (Object) this);
+		}
 	}
 
 	@Redirect(method = "run", at = @At(value = "INVOKE", target =
 		//#if MC>11202
-		"Lnet/minecraft/util/Utils;getTimeMillis()J"
+		"Lnet/minecraft/util/Utils;getTimeMillis()J",
 		//#else
-		//$$ "Lnet/minecraft/server/MinecraftServer;getTimeMillis()J"
+		//$$ "Lnet/minecraft/server/MinecraftServer;getTimeMillis()J",
 		//#endif
+		ordinal = 1
 	))
 	private long onGetTimeMillis() {
+		if (this.getTickRateManager() == null) {
+			this.serverTickRateManager = new ServerTickRateManager((MinecraftServer) (Object) this);
+		}
 		float mspt = serverTickRateManager.mspt();
 		if (serverTickRateManager.isInWarpSpeed() && serverTickRateManager.continueWarp()) {
 			msThisTick = 0L;
 			carpetMsptAccum = mspt;
 			//#if MC>11202
-			return this.lastWarnTime = Utils.getTimeMillis();
-			//#else
-			//$$ return this.lastWarnTime = System.currentTimeMillis();
+			this.nextTickTime = this.lastWarnTime = Utils.getTimeMillis();
+			//#elseif MC>10710
+			//$$ this.nextTickTime = this.lastWarnTime = System.currentTimeMillis();
+			//#endif
+			//#if MC<=11202
+			//$$ tick();
 			//#endif
 		} else {
 			if (Math.abs(carpetMsptAccum - mspt) > 1.0f) {
@@ -81,9 +97,9 @@ public abstract class MinecraftServerMixin implements MinecraftServerTickRate {
 		return (long) (10000L+100*serverTickRateManager.mspt());
 	}
 
-	@ModifyConstant(method = "run", constant = @Constant(longValue = 50L), expect = 3)
+	@ModifyConstant(method = "run", constant = @Constant(longValue = 50L))
 	private long customMspt(long constant) {
-		return (long) serverTickRateManager.mspt();
+		return this.serverTickRateManager.isInWarpSpeed() ? 1L : this.msThisTick;
 	}
 
 	//#if MC>11202
@@ -102,15 +118,16 @@ public abstract class MinecraftServerMixin implements MinecraftServerTickRate {
 		, shift = At.Shift.BEFORE))
 	private void onAdjustTime(CallbackInfo ci) {
 		//#if MC>10710
-		this.nextTickTime -= (long) serverTickRateManager.mspt();
-		this.nextTickTime += msThisTick;
+		if (this.serverTickRateManager.isInWarpSpeed()) {
+			this.nextTickTime -= (long) serverTickRateManager.mspt() + msThisTick;
+		}
 		//#endif
 	}
 
 	//#if MC<=10710
 	//$$	@ModifyVariable(method = "run", at = @At("STORE"), ordinal = 0)
 	//$$	private long modified(long var1) {
-	//$$        return var1 - (long) serverTickRateManager.mspt() + msThisTick;
+	//$$ 		return this.serverTickRateManager.isInWarpSpeed() ? var1 - (long) serverTickRateManager.mspt() + msThisTick : var1;
 	//$$	}
 	//#endif
 
@@ -123,5 +140,12 @@ public abstract class MinecraftServerMixin implements MinecraftServerTickRate {
 			return hasTimeLeft();
 		}
 	}
+	//#endif
+
+	//#if MC<=11202
+	//$$	@Redirect(method = "run", at = @At(value = "INVOKE", target = "Ljava/lang/Math;max(JJ)J"))
+	//$$	private long max(long a, long b) {
+	//$$		return this.serverTickRateManager.isInWarpSpeed() ? 1L : Math.max(a, b);
+	//$$	}
 	//#endif
 }

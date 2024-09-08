@@ -9,7 +9,7 @@ public class TickRateManager {
 	protected float mspt = 50.0f;
 	protected int playerActivityTimeout = 0;
 	protected boolean runGameElements = true;
-	// deep freeze is onlyu used serverside
+	// deep freeze is only used serverside
 	protected boolean deepFreeze = false;
 	protected boolean isGamePaused = false;
 

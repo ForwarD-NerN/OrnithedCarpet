@@ -12,14 +12,13 @@ import net.minecraft.server.command.source.CommandSourceStack;
 //#if MC<=10809
 //$$ import net.minecraft.server.MinecraftServer;
 //#endif
-import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static com.kahzerx.carpet.api.settings.RuleCategory.*;
 
 public class CarpetSettings {
-	public static final String carpetVersion = "0.2.0";
+	public static final String carpetVersion = "0.3.0";
 	public static final Logger LOG = LogManager.getLogger("carpet");
 
 	private static class LanguageValidator extends Validator<String> {
@@ -190,6 +189,7 @@ public class CarpetSettings {
 		},
 		categories = CREATIVE,
 		options = {"0", "1", "2", "3"},
+		strict = false,
 		validators = QuasiConnectivityValidator.class
 	)
 	public static int quasiConnectivity = 1;
