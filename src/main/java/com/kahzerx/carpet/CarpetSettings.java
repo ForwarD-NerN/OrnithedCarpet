@@ -3,7 +3,9 @@ package com.kahzerx.carpet;
 import com.kahzerx.carpet.api.settings.CarpetRule;
 import com.kahzerx.carpet.api.settings.Rule;
 import com.kahzerx.carpet.api.settings.Validator;
+import com.kahzerx.carpet.fakes.ChunkMapAccess;
 import com.kahzerx.carpet.utils.Translations;
+import net.minecraft.entity.living.player.PlayerEntity;
 //#if MC>=11300
 import net.minecraft.server.command.source.CommandSourceStack;
 //#else
@@ -12,8 +14,12 @@ import net.minecraft.server.command.source.CommandSourceStack;
 //#if MC<=10809
 //$$ import net.minecraft.server.MinecraftServer;
 //#endif
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 import static com.kahzerx.carpet.api.settings.RuleCategory.*;
 
@@ -86,6 +92,9 @@ public class CarpetSettings {
 			return "You must choose a value from 1 to 72000";
 		}
 	}
+
+
+
 	@Rule(
 			desc = "Amount of delay ticks to use a nether portal in creative",
 			options = {"1", "40", "80", "72000"},
@@ -129,7 +138,7 @@ public class CarpetSettings {
 		options = {"10", "12", "14", "100"},
 		categories = CREATIVE,
 		strict = false,
-		validators = PushLimitLimits.class
+		validators = CreativePlayersLoadChunksValidator.class
 	)
 	public static int pushLimit = 12;
 
@@ -138,7 +147,7 @@ public class CarpetSettings {
 		options = {"9", "15", "30"},
 		categories = CREATIVE,
 		strict = false,
-		validators = PushLimitLimits.class
+		validators = CreativePlayersLoadChunksValidator.class
 	)
 	public static int railPowerLimit = 9;
 
@@ -249,12 +258,49 @@ public class CarpetSettings {
 	)
 	public static boolean smoothClientAnimations = false;
 
+	@SuppressWarnings("unchecked")
+	private static class CreativePlayersLoadChunksValidator extends Validator<Boolean> {
+		@Override
+		//#if MC>=11300
+		public Boolean validate(CommandSourceStack source, CarpetRule<Boolean> currentRule, Boolean newValue, String userInput) {
+			//#else
+			//$$ public Boolean validate(CommandSource source, CarpetRule<Boolean> currentRule, Boolean newValue, String userInput) {
+			//#endif
+
+			//#if MC>=11300
+			for(ServerWorld world : source.getServer().getWorlds()) {
+			//#elseif MC>=10900
+			//$$ for(ServerWorld world : source.getServer().worlds) {
+			//#else
+			//$$ for(ServerWorld world : ((ServerWorld)source.getSourceWorld()).getServer().worlds) {
+			//#endif
+				ChunkMapAccess access = (ChunkMapAccess) world.getChunkMap();
+				//#if MC>=10800
+				for(PlayerEntity player : world.players) {
+				//#else
+				//$$ for(PlayerEntity player : ((List<PlayerEntity>)world.players)) {
+				//#endif
+					if(newValue) {
+						access.syncChunks((ServerPlayerEntity) player);
+					}else {
+						access.unloadNearestChunks((ServerPlayerEntity) player);
+					}
+
+				}
+			}
+
+			return newValue;
+		}
+
+		@Override
+		public String description() { return "You must choose a value from 1 to 1024";}
+	}
+
 	//#if MC>=10900
 	@Rule(
-		desc = "Creative players load chunks, or they don't! Just like spectators!",
-		extra = {"Toggling behaves exactly as if the player is in spectator mode and toggling the gamerule spectatorsGenerateChunks."
-		},
-		categories = {CREATIVE, FEATURE}
+		desc = "Creative players load chunks, or they don't!",
+		categories = {CREATIVE, FEATURE},
+		validators = CreativePlayersLoadChunksValidator.class
 	)
 	public static boolean creativePlayersLoadChunks = true;
 	//#endif
