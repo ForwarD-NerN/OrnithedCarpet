@@ -6,11 +6,11 @@ import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
 import java.util.List;
 
 //#if MC>=10900
 import net.minecraft.server.ChunkHolder;
+
 @Mixin(ChunkHolder.class)
 public class ChunkHolderMixin implements ChunkHolderAccess {
 
@@ -24,7 +24,7 @@ public class ChunkHolderMixin implements ChunkHolderAccess {
 
 	@Override
 	public void removePlayerQuietly(ServerPlayerEntity player) {
-		if(this.players.contains(player)) {
+		if (this.players.contains(player)) {
 			this.players.remove(player);
 			if (this.players.isEmpty()) {
 				this.chunkMap.unload((ChunkHolder) (Object) this);

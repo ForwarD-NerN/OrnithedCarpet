@@ -138,7 +138,7 @@ public class CarpetSettings {
 		options = {"10", "12", "14", "100"},
 		categories = CREATIVE,
 		strict = false,
-		validators = CreativePlayersLoadChunksValidator.class
+		validators = PushLimitLimits.class
 	)
 	public static int pushLimit = 12;
 
@@ -147,7 +147,7 @@ public class CarpetSettings {
 		options = {"9", "15", "30"},
 		categories = CREATIVE,
 		strict = false,
-		validators = CreativePlayersLoadChunksValidator.class
+		validators = PushLimitLimits.class
 	)
 	public static int railPowerLimit = 9;
 
@@ -258,7 +258,7 @@ public class CarpetSettings {
 	)
 	public static boolean smoothClientAnimations = false;
 
-	@SuppressWarnings("unchecked")
+	//#if MC>=10900
 	private static class CreativePlayersLoadChunksValidator extends Validator<Boolean> {
 		@Override
 		//#if MC>=11300
@@ -269,17 +269,11 @@ public class CarpetSettings {
 
 			//#if MC>=11300
 			for(ServerWorld world : source.getServer().getWorlds()) {
-			//#elseif MC>=10900
-			//$$ for(ServerWorld world : source.getServer().worlds) {
 			//#else
-			//$$ for(ServerWorld world : ((ServerWorld)source.getSourceWorld()).getServer().worlds) {
+			//$$ for(ServerWorld world : source.getServer().worlds) {
 			//#endif
 				ChunkMapAccess access = (ChunkMapAccess) world.getChunkMap();
-				//#if MC>=10800
 				for(PlayerEntity player : world.players) {
-				//#else
-				//$$ for(PlayerEntity player : ((List<PlayerEntity>)world.players)) {
-				//#endif
 					if(newValue) {
 						access.syncChunks((ServerPlayerEntity) player);
 					}else {
@@ -288,17 +282,12 @@ public class CarpetSettings {
 
 				}
 			}
-
 			return newValue;
 		}
-
-		@Override
-		public String description() { return "You must choose a value from 1 to 1024";}
 	}
 
-	//#if MC>=10900
 	@Rule(
-		desc = "Creative players load chunks, or they don't!",
+		desc = "Creative players won't load any chunks, except the one they are in",
 		categories = {CREATIVE, FEATURE},
 		validators = CreativePlayersLoadChunksValidator.class
 	)

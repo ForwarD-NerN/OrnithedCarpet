@@ -10,34 +10,23 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.chunk.ChunkSource;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 //#if MC>=10900
 import net.minecraft.server.ChunkHolder;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.Iterator;
-import java.util.List;
 
 @Mixin(ChunkMap.class)
 public abstract class ChunkMapMixin implements ChunkMapAccess {
 
-	//#if MC>=10900
 	@Shadow
 	protected abstract ChunkHolder getOrAddChunk(int par1, int par2);
 
 	@Shadow
 	public abstract @Nullable ChunkHolder getChunk(int chunkX, int chunkZ);
-	//#else
-	//$$ @Shadow protected abstract ChunkHolder getChunk(int chunkX, int chunkZ, boolean add);
-	//#endif
 
 	@Shadow
 	protected abstract boolean isChunkWithinView(int chunkX, int chunkZ, int playerChunkX, int playerChunkZ, int chunkViewDistance);
@@ -56,20 +45,17 @@ public abstract class ChunkMapMixin implements ChunkMapAccess {
 		if(!withinView && shouldNotLoadNewChunks(player)) {
 			ChunkSource source = world.getChunkSource();
 
-			WorldChunk chunk =
 			//#if MC>=11300
-				source.getChunk(chunkX, chunkZ, false, false);
+			WorldChunk chunk = source.getChunk(chunkX, chunkZ, false, false);
 			//#else
-			//$$source.getLoadedChunk(chunkX, chunkZ);
+			//$$ WorldChunk chunk = source.getLoadedChunk(chunkX, chunkZ);
 			//#endif
 
+
 			if(chunk != null) {
-				//#if MC>=10900
 				this.getOrAddChunk(chunkX, chunkZ).addPlayer(player);
-				//#else
-				//$$ this.getChunk(chunkX, chunkZ, false).addPlayer(player);
-				//#endif
 			}
+
 
 			return true;
 		}
@@ -90,11 +76,7 @@ public abstract class ChunkMapMixin implements ChunkMapAccess {
 
 		for (int chunkX = i - this.chunkViewDistance; chunkX <= i + this.chunkViewDistance; chunkX++) {
 			for (int chunkZ = j - this.chunkViewDistance; chunkZ <= j + this.chunkViewDistance; chunkZ++) {
-				//#if MC>=10900
 				this.getOrAddChunk(chunkX, chunkZ).addPlayer(player);
-				//#else
-				//$$ this.getChunk(chunkX, chunkZ, true).addPlayer(player);
-				//#endif
 			}
 		}
 	}
@@ -106,15 +88,8 @@ public abstract class ChunkMapMixin implements ChunkMapAccess {
 
 		for (int chunkX = i - this.chunkViewDistance; chunkX <= i + this.chunkViewDistance; chunkX++) {
 			for (int chunkZ = j - this.chunkViewDistance; chunkZ <= j + this.chunkViewDistance; chunkZ++) {
-
 				boolean canUnload = world.dimension.canChunkUnload(chunkX, chunkZ);
-
-				ChunkHolder holder =
-				//#if MC>=10900
-					this.getChunk(chunkX, chunkZ);
-				//#else
-				//$$ this.getChunk(chunkX, chunkZ, false);
-				//#endif
+				ChunkHolder holder = this.getChunk(chunkX, chunkZ);
 
 				if(canUnload && holder != null)
 					((ChunkHolderAccess)holder).removePlayerQuietly(player);
